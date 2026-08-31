@@ -34,17 +34,6 @@
       .code-pill.empty { background: #4a4e57; color: #c7cad4; }
       .code-meaning { color: #f7f7fb; font-size: 1.05rem; font-weight: 700; }
 
-      .settings-head { display: flex; align-items: center; justify-content: space-between; cursor: pointer; color: #b5b9c4; font-weight: 700; font-size: .95rem; }
-      .settings-head .chev { color: #b5b6ff; transition: transform .15s; }
-      .settings-head.open .chev { transform: rotate(90deg); }
-      .settings-body { display: none; margin-top: 16px; }
-      .settings-body.open { display: grid; gap: 12px; }
-      .code-map-list { display: grid; gap: 8px; }
-      .code-map-row { display: grid; grid-template-columns: 70px 1fr auto; gap: 8px; align-items: center; }
-      .code-map-row input[type=text] { width: 100%; }
-      .code-map-row button { color: #ff9b9b; background: transparent; font-size: .8rem; font-weight: 700; padding: 6px; }
-      .add-code-btn { justify-self: start; padding: 8px 14px; border-radius: 10px; background: #4a4e57; color: #e6e7ff; font-weight: 800; font-size: .82rem; border: 1px solid #676ab7; }
-
       .calendar-card { padding: 20px; background: #2f3136; }
       .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
       .calendar-header h2 { font-size: 1.15rem; font-weight: 700; margin: 0; color: #e3e5e8; }
@@ -85,17 +74,6 @@
         </div>
       </article>
 
-      <article class="card">
-        <div class="settings-head" id="settingsHead">
-          <span>代碼設定</span>
-          <span class="chev">›</span>
-        </div>
-        <div class="settings-body" id="settingsBody">
-          <div class="code-map-list" id="codeMapList"></div>
-          <button type="button" class="add-code-btn" id="addCodeBtn">新增代碼</button>
-        </div>
-      </article>
-
       <article class="card calendar-card" id="calendarCard">
         <div class="calendar-header">
           <h2 id="calendarTitle"></h2>
@@ -113,18 +91,14 @@
         const el = {
           todayStamp: $("todayStamp"), daySelect: $("daySelect"),
           codePill: $("codePill"), codeMeaning: $("codeMeaning"),
-          settingsHead: $("settingsHead"), settingsBody: $("settingsBody"),
-          codeMapList: $("codeMapList"), addCodeBtn: $("addCodeBtn"),
           calendarCard: $("calendarCard"), calendarTitle: $("calendarTitle"), calendarGrid: $("calendarGrid"),
         };
 
-        const DEFAULT_CODE_MAP = { 
+        const CODE_MAP = { 
           A1: "05:00 上班", A3: "06:30 上班", A4: "07:00 上班", 
           C2: "14:30 上班", C3: "14:30 上班", C6: "15:00 上班",
           "休": "休假", "例": "例假", "國": "國定假日", "喪": "喪假"
         };
-        
-        let settings = { codeMap: { ...DEFAULT_CODE_MAP } };
         
         let schedule = { 
           year: 2026, month: 9, 
@@ -149,53 +123,6 @@
           return { year: v("year"), month: v("month"), day: v("day") };
         };
         const daysInMonth = (year, month) => new Date(year, month, 0).getDate();
-
-        async function loadStorage() {
-          try {
-            if (window.storage) {
-              const s = await window.storage.get("settings", false);
-              if (s && s.value) settings = { ...settings, ...JSON.parse(s.value) };
-            }
-          } catch {}
-        }
-        
-        async function saveSettings() { 
-          try { 
-            if (window.storage) await window.storage.set("settings", JSON.stringify(settings), false); 
-          } catch {} 
-        }
-
-        function renderCodeMapEditor() {
-          el.codeMapList.replaceChildren();
-          Object.entries(settings.codeMap).forEach(([code, label]) => el.codeMapList.appendChild(codeMapRow(code, label)));
-        }
-        
-        function codeMapRow(code, label) {
-          const row = document.createElement("div");
-          row.className = "code-map-row";
-          const codeInput = document.createElement("input");
-          codeInput.type = "text"; codeInput.value = code; codeInput.maxLength = 6;
-          const labelInput = document.createElement("input");
-          labelInput.type = "text"; labelInput.value = label; labelInput.placeholder = "對應說明";
-          const delBtn = document.createElement("button");
-          delBtn.type = "button"; delBtn.textContent = "刪除";
-          const commit = () => {
-            const map = {};
-            [...el.codeMapList.children].forEach(r => {
-              const inputs = r.querySelectorAll("input[type=text]");
-              const c = inputs[0].value.trim();
-              if (c) map[c] = inputs[1].value;
-            });
-            settings.codeMap = map;
-            saveSettings();
-            renderStatus();
-          };
-          codeInput.addEventListener("change", commit);
-          labelInput.addEventListener("change", commit);
-          delBtn.addEventListener("click", () => { row.remove(); commit(); });
-          row.append(codeInput, labelInput, delBtn);
-          return row;
-        }
 
         function renderStatus() {
           const now = taipeiToday();
@@ -227,7 +154,7 @@
           const code = person.codes[selectedDay] || "";
           el.codePill.textContent = code || "--";
           el.codePill.className = "code-pill" + (code ? "" : " empty");
-          el.codeMeaning.textContent = code ? (settings.codeMap[code] || "未設定") : "無班別";
+          el.codeMeaning.textContent = code ? (CODE_MAP[code] || "未設定") : "無班別";
 
           renderCalendar(person);
         }
@@ -275,22 +202,8 @@
         
         el.daySelect.addEventListener("change", renderStatus);
         
-        el.addCodeBtn.addEventListener("click", () => { 
-          settings.codeMap["新代碼"] = ""; 
-          saveSettings(); 
-          renderCodeMapEditor(); 
-        });
-        
-        el.settingsHead.addEventListener("click", () => {
-          const open = el.settingsBody.classList.toggle("open");
-          el.settingsHead.classList.toggle("open", open);
-        });
-
-        (async () => {
-          await loadStorage();
-          renderCodeMapEditor();
-          renderStatus();
-        })();
+        // 初始載入
+        renderStatus();
       })();
     </script>
   </body>
