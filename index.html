@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#34363b" />
-    <title>班表小幫手</title>
+    <title>班表查詢</title>
     <style>
       :root {
         color: #f7f7fb;
@@ -16,177 +16,127 @@
       html, body { min-height: 100%; margin: 0; }
       body { min-width: 320px; background: #34363b; }
       button { font: inherit; border: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-      button:disabled { opacity: .55; cursor: default; }
       button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #b5b6ff; outline-offset: 2px; }
-      input, select { font: inherit; color: #f7f7fb; background: #2f3136; border: 1px solid #565a64; border-radius: 8px; padding: 8px 10px; }
+      input, select { font: inherit; color: #f7f7fb; background: #2f3136; border: 1px solid #565a64; border-radius: 8px; padding: 6px 10px; }
 
-      .app { width: min(1040px, calc(100% - 28px)); margin: 0 auto; padding: 26px 0 48px; }
+      .app { width: min(1040px, calc(100% - 28px)); margin: 0 auto; padding: 24px 0 48px; }
 
-      .header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
-      .brand { display: flex; align-items: center; gap: 12px; min-width: 0; padding-left: 14px; border-left: 3px solid #8a8cff; }
-      .brand-mark { position: relative; width: 46px; height: 46px; flex: none; border: 3px solid #6e70df; border-radius: 14px; background: #3b3e44; }
-      .brand-mark::before { position: absolute; inset: 9px; border: 3px solid #d4d5ff; border-radius: 50%; content: ""; }
-      .brand-mark::after { position: absolute; top: 6px; right: 7px; width: 5px; height: 5px; border-radius: 50%; background: #b5b6ff; content: ""; }
-      .eyebrow { display: block; color: #b5b6ff; font-size: .74rem; font-weight: 800; letter-spacing: .1em; }
-      h1 { margin: 2px 0 0; font-size: clamp(1.5rem, 4vw, 1.9rem); font-weight: 850; letter-spacing: -.03em; }
-      .today-stamp { display: grid; justify-items: end; gap: 2px; color: #bcc0ca; font-size: .78rem; flex: none; }
-      .today-stamp strong { color: #f7f7fb; font-size: .96rem; font-variant-numeric: tabular-nums; }
-
-      .card { border: 1px solid #565a64; border-radius: 16px; background: #3b3e44; padding: 20px; }
-      .stack { display: grid; gap: 14px; }
-
-      .kicker { color: #b5b6ff; font-size: .74rem; font-weight: 800; letter-spacing: .1em; }
-      p { margin: 0; }
-
+      .card { border: 1px solid #565a64; border-radius: 16px; background: #3b3e44; padding: 20px; margin-bottom: 16px; }
+      
       .status-card { border: 2px solid #6e70df; }
-      .status-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-      .status-name { display: flex; align-items: center; gap: 8px; }
-      .status-name input { width: 8em; font-weight: 800; }
-      .status-title { margin-top: 10px; font-size: clamp(1.3rem, 3vw, 1.7rem); font-weight: 850; letter-spacing: -.03em; }
-      .status-detail { margin-top: 6px; color: #c7cad4; font-size: .92rem; font-weight: 600; line-height: 1.5; }
-      .status-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
-      .code-pill { display: inline-flex; align-items: center; justify-content: center; min-width: 46px; padding: 6px 12px; border-radius: 999px; background: #6e70df; color: #fff; font-weight: 850; font-size: 1rem; }
+      .control-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+      .input-group { display: flex; align-items: center; gap: 8px; }
+      .input-group label { color: #b5b9c4; font-size: .9rem; font-weight: 700; }
+      .input-group input { width: 6em; font-weight: 800; }
+      .today-stamp { color: #bcc0ca; font-size: .85rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+      
+      .result-row { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #565a64; }
+      .code-pill { display: inline-flex; align-items: center; justify-content: center; min-width: 48px; padding: 6px 12px; border-radius: 999px; background: #6e70df; color: #fff; font-weight: 850; font-size: 1.1rem; }
       .code-pill.empty { background: #4a4e57; color: #c7cad4; }
-      .status-picker { display: flex; align-items: center; gap: 8px; margin-top: 14px; color: #b5b9c4; font-size: .82rem; }
-      .status-picker select { padding: 6px 8px; }
-      .month-mismatch { margin-top: 10px; color: #ffcf87; font-size: .8rem; font-weight: 700; }
+      .code-meaning { color: #f7f7fb; font-size: 1.05rem; font-weight: 700; }
 
-      .settings-head { display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
-      .settings-head span { font-weight: 800; font-size: .95rem; }
+      .settings-head { display: flex; align-items: center; justify-content: space-between; cursor: pointer; color: #b5b9c4; font-weight: 700; font-size: .95rem; }
       .settings-head .chev { color: #b5b6ff; transition: transform .15s; }
       .settings-head.open .chev { transform: rotate(90deg); }
       .settings-body { display: none; margin-top: 16px; }
-      .settings-body.open { display: grid; gap: 16px; }
-      .field-row { display: grid; grid-template-columns: 1fr; gap: 6px; }
-      .field-row label { color: #b5b9c4; font-size: .8rem; font-weight: 700; }
+      .settings-body.open { display: grid; gap: 12px; }
       .code-map-list { display: grid; gap: 8px; }
       .code-map-row { display: grid; grid-template-columns: 70px 1fr auto; gap: 8px; align-items: center; }
       .code-map-row input[type=text] { width: 100%; }
       .code-map-row button { color: #ff9b9b; background: transparent; font-size: .8rem; font-weight: 700; padding: 6px; }
       .add-code-btn { justify-self: start; padding: 8px 14px; border-radius: 10px; background: #4a4e57; color: #e6e7ff; font-weight: 800; font-size: .82rem; border: 1px solid #676ab7; }
 
-      /* 日曆視圖專屬樣式 */
-      .calendar-card { padding: 24px 20px; background: #2f3136; }
-      .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-      .calendar-header h2 { font-size: 1.25rem; font-weight: 600; margin: 0; color: #e3e5e8; }
-      .calendar-nav { display: flex; gap: 16px; color: #b5b9c4; font-size: 1.2rem; }
+      .calendar-card { padding: 20px; background: #2f3136; }
+      .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+      .calendar-header h2 { font-size: 1.15rem; font-weight: 700; margin: 0; color: #e3e5e8; }
       
-      .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 16px; font-size: 0.85rem; font-weight: 600; color: #9ea2ad; }
-      .calendar-weekdays .blue-text { color: #5865F2; } /* 模擬圖片中的藍色字體 */
+      .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 12px; font-size: 0.85rem; font-weight: 700; color: #9ea2ad; }
+      .calendar-weekdays .blue-text { color: #5865F2; }
       
       .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px 0; }
       .cal-cell { display: flex; flex-direction: column; align-items: center; padding: 8px 0; cursor: pointer; border-radius: 12px; transition: background 0.2s; user-select: none; }
       .cal-cell:hover { background: #3b3e44; }
       
-      .cal-date { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; font-weight: 500; border-radius: 50%; color: #dcddde; margin-bottom: 4px; }
-      .cal-cell.selected .cal-date { background: #3b48e0; color: #ffffff; font-weight: 700; } /* 模擬圖片中的藍底標記 */
+      .cal-date { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 600; border-radius: 50%; color: #dcddde; margin-bottom: 4px; }
+      .cal-cell.selected .cal-date { background: #3b48e0; color: #ffffff; font-weight: 700; }
       
-      .cal-shift { font-size: 0.75rem; font-weight: 700; color: #8a8cff; min-height: 14px; }
+      .cal-shift { font-size: 0.8rem; font-weight: 700; color: #8a8cff; min-height: 16px; }
       .cal-shift.empty { color: transparent; }
 
       @media (max-width: 640px) {
-        .app { padding: 18px 0 36px; }
+        .app { padding: 16px 0; }
         .card { padding: 16px; }
-        .header { align-items: flex-start; }
       }
     </style>
   </head>
   <body>
     <main class="app">
-      <header class="header">
-        <div class="brand">
-          <span class="brand-mark" aria-hidden="true"></span>
-          <div><span class="eyebrow">個人專屬</span><h1>班表小幫手</h1></div>
+      <article class="card status-card">
+        <div class="control-row">
+          <div class="input-group">
+            <label for="targetName">姓名</label>
+            <input type="text" id="targetName" value="倪郡嶸" />
+          </div>
+          <div class="today-stamp" id="todayStamp"></div>
         </div>
-        <div class="today-stamp"><span>今天</span><strong id="todayStamp"></strong></div>
-      </header>
 
-      <div class="stack">
-        <article class="card status-card" id="statusCard">
-          <div class="status-top">
-            <div class="kicker" id="monthLabel">尚未載入班表</div>
-            <div class="status-name">
-              <span class="kicker" style="letter-spacing:0;font-weight:700;color:#b5b9c4">標記對象</span>
-              <input type="text" id="targetName" value="倪正人" />
-            </div>
-          </div>
-          <p class="status-title" id="statusTitle">查看今天的班別</p>
-          <p class="status-detail" id="statusDetail"></p>
-          <div class="status-row" id="statusRow" style="display:none">
-            <span class="code-pill" id="codePill">--</span>
-            <span id="codeMeaning" style="color:#c7cad4;font-size:.9rem;font-weight:700"></span>
-          </div>
-          <div class="status-picker" id="statusPicker" style="display:none">
-            <span>查看日期</span>
-            <select id="daySelect"></select>
-          </div>
-          <p class="month-mismatch" id="monthMismatch" style="display:none"></p>
-        </article>
+        <div class="input-group">
+          <label for="daySelect">日期</label>
+          <select id="daySelect"></select>
+        </div>
+        
+        <div class="result-row">
+          <span class="code-pill" id="codePill">--</span>
+          <span class="code-meaning" id="codeMeaning">無資料</span>
+        </div>
+      </article>
 
-        <article class="card">
-          <div class="settings-head" id="settingsHead">
-            <span>進階設定與代碼對照</span>
-            <span class="chev">›</span>
-          </div>
-          <div class="settings-body" id="settingsBody">
-            <div class="field-row">
-              <label>班別代碼對照時間（用來判斷「今天要幾點上班」）</label>
-              <div class="code-map-list" id="codeMapList"></div>
-              <button type="button" class="add-code-btn" id="addCodeBtn">＋ 新增代碼</button>
-            </div>
-          </div>
-        </article>
+      <article class="card">
+        <div class="settings-head" id="settingsHead">
+          <span>代碼設定</span>
+          <span class="chev">›</span>
+        </div>
+        <div class="settings-body" id="settingsBody">
+          <div class="code-map-list" id="codeMapList"></div>
+          <button type="button" class="add-code-btn" id="addCodeBtn">新增代碼</button>
+        </div>
+      </article>
 
-        <!-- 替換成日曆風格的區塊 -->
-        <article class="card calendar-card" id="calendarCard" style="display:none">
-          <div class="calendar-header">
-            <h2 id="calendarTitle">2026年9月</h2>
-            <div class="calendar-nav">
-              <span>&lt;</span>
-              <span>&gt;</span>
-            </div>
-          </div>
-          <div class="calendar-weekdays">
-            <span class="blue-text">日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="blue-text">六</span>
-          </div>
-          <div class="calendar-grid" id="calendarGrid"></div>
-        </article>
-      </div>
+      <article class="card calendar-card" id="calendarCard">
+        <div class="calendar-header">
+          <h2 id="calendarTitle"></h2>
+        </div>
+        <div class="calendar-weekdays">
+          <span class="blue-text">日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="blue-text">六</span>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </article>
     </main>
 
     <script>
       (() => {
         const $ = id => document.getElementById(id);
         const el = {
-          todayStamp: $("todayStamp"), monthLabel: $("monthLabel"), targetName: $("targetName"),
-          statusTitle: $("statusTitle"), statusDetail: $("statusDetail"), statusRow: $("statusRow"),
-          codePill: $("codePill"), codeMeaning: $("codeMeaning"), statusPicker: $("statusPicker"),
-          daySelect: $("daySelect"), monthMismatch: $("monthMismatch"),
+          todayStamp: $("todayStamp"), targetName: $("targetName"), daySelect: $("daySelect"),
+          codePill: $("codePill"), codeMeaning: $("codeMeaning"),
           settingsHead: $("settingsHead"), settingsBody: $("settingsBody"),
           codeMapList: $("codeMapList"), addCodeBtn: $("addCodeBtn"),
           calendarCard: $("calendarCard"), calendarTitle: $("calendarTitle"), calendarGrid: $("calendarGrid"),
         };
 
         const DEFAULT_CODE_MAP = { 
-          A1: "05:00 上班", 
-          A3: "06:30 上班", 
-          A4: "07:00 上班", 
-          C2: "14:30 上班", 
-          C3: "14:30 上班", 
-          C6: "15:00 上班",
-          "休": "休假",
-          "例": "例假",
-          "國": "國定假日",
-          "喪": "喪假"
+          A1: "05:00 上班", A3: "06:30 上班", A4: "07:00 上班", 
+          C2: "14:30 上班", C3: "14:30 上班", C6: "15:00 上班",
+          "休": "休假", "例": "例假", "國": "國定假日", "喪": "喪假"
         };
-        let settings = { targetName: "倪正人", codeMap: { ...DEFAULT_CODE_MAP } };
+        
+        let settings = { targetName: "倪郡嶸", codeMap: { ...DEFAULT_CODE_MAP } };
         
         let schedule = { 
-          year: 2026, 
-          month: 9, 
+          year: 2026, month: 9, 
           staff: [
             {
-              name: "倪正人",
+              name: "倪郡嶸",
               codes: {
                 1: "A1", 2: "休", 3: "C3", 4: "C2", 5: "例",
                 6: "C2", 7: "休", 8: "A1", 9: "A1", 10: "A1",
@@ -204,7 +154,6 @@
           const v = t => Number(p.find(i => i.type === t).value);
           return { year: v("year"), month: v("month"), day: v("day") };
         };
-        const weekdayChar = (y, m, d) => ["日", "一", "二", "三", "四", "五", "六"][new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
         const daysInMonth = (year, month) => new Date(year, month, 0).getDate();
 
         async function loadStorage() {
@@ -215,6 +164,7 @@
             }
           } catch {}
         }
+        
         async function saveSettings() { 
           try { 
             if (window.storage) await window.storage.set("settings", JSON.stringify(settings), false); 
@@ -232,7 +182,7 @@
           const codeInput = document.createElement("input");
           codeInput.type = "text"; codeInput.value = code; codeInput.maxLength = 6;
           const labelInput = document.createElement("input");
-          labelInput.type = "text"; labelInput.value = label; labelInput.placeholder = "例如 14:30 上班";
+          labelInput.type = "text"; labelInput.value = label; labelInput.placeholder = "對應說明";
           const delBtn = document.createElement("button");
           delBtn.type = "button"; delBtn.textContent = "刪除";
           const commit = () => {
@@ -240,8 +190,7 @@
             [...el.codeMapList.children].forEach(r => {
               const inputs = r.querySelectorAll("input[type=text]");
               const c = inputs[0].value.trim();
-              const l = inputs[1].value;
-              if (c) map[c] = l;
+              if (c) map[c] = inputs[1].value;
             });
             settings.codeMap = map;
             saveSettings();
@@ -254,61 +203,44 @@
           return row;
         }
 
-        function findTarget() {
-          if (!schedule) return null;
-          const name = settings.targetName.trim();
-          return schedule.staff.find(s => s.name.includes(name)) || null;
-        }
-
         function renderStatus() {
           const now = taipeiToday();
-          el.todayStamp.textContent = `${now.year}/${now.month}/${now.day}（${weekdayChar(now.year, now.month, now.day)}）`;
+          el.todayStamp.textContent = `今日: ${now.month}/${now.day}`;
 
-          el.monthLabel.textContent = `${schedule.year} 年 ${schedule.month} 月份班表`;
-          const person = findTarget();
+          const name = settings.targetName.trim();
+          const person = schedule.staff.find(s => s.name.includes(name));
           const nDays = daysInMonth(schedule.year, schedule.month);
           const sameMonth = now.year === schedule.year && now.month === schedule.month;
 
-          el.statusPicker.style.display = "flex";
-          // 確保下拉選單有選項
           if (el.daySelect.children.length === 0) {
               const prevSelected = sameMonth ? now.day : 1;
               for (let d = 1; d <= nDays; d++) {
                 const opt = document.createElement("option");
-                opt.value = d; opt.textContent = `${schedule.month}/${d}（${weekdayChar(schedule.year, schedule.month, d)}）`;
+                opt.value = d; opt.textContent = `${schedule.month}/${d}`;
                 if (d === prevSelected) opt.selected = true;
                 el.daySelect.appendChild(opt);
               }
           }
           const selectedDay = +el.daySelect.value;
 
-          el.monthMismatch.style.display = sameMonth ? "none" : "block";
-          if (!sameMonth) el.monthMismatch.textContent = `這份班表是 ${schedule.month} 月，今天不在這個月份內，以下顯示你所選日期的班別。`;
-
           if (!person) {
-            el.statusTitle.textContent = `在班表裡找不到「${settings.targetName}」`;
-            el.statusDetail.textContent = "請確認姓名是否正確。";
-            el.statusRow.style.display = "none";
+            el.codePill.textContent = "--";
+            el.codePill.className = "code-pill empty";
+            el.codeMeaning.textContent = "查無資料";
             renderCalendar(null);
             return;
           }
 
           const code = person.codes[selectedDay] || "";
-          const meaning = code ? (settings.codeMap[code] || "非上班代碼／未設定時間") : "（尚無資料）";
-          el.statusTitle.textContent = sameMonth && selectedDay === now.day ? `${settings.targetName} 今天的班別` : `${settings.targetName} ${schedule.month}/${selectedDay} 的班別`;
-          el.statusDetail.textContent = code ? `代碼「${code}」對應：${meaning}` : "這天沒有查到班別代碼。";
-          el.statusRow.style.display = "flex";
           el.codePill.textContent = code || "--";
           el.codePill.className = "code-pill" + (code ? "" : " empty");
-          el.codeMeaning.textContent = code ? meaning : "";
+          el.codeMeaning.textContent = code ? (settings.codeMap[code] || "未設定") : "無班別";
 
-          // 重新繪製日曆並帶入當前選中日期
           renderCalendar(person);
         }
 
-        // 繪製日曆視圖
         function renderCalendar(person) {
-          if (!schedule || !person) { el.calendarCard.style.display = "none"; return; }
+          if (!person) { el.calendarCard.style.display = "none"; return; }
           el.calendarCard.style.display = "block";
           el.calendarTitle.textContent = `${schedule.year}年${schedule.month}月`;
 
@@ -316,28 +248,22 @@
           grid.replaceChildren();
 
           const nDays = daysInMonth(schedule.year, schedule.month);
-          // 取得該月第一天是星期幾 (0 = 週日, 6 = 週六)
           const firstDayOfWeek = new Date(schedule.year, schedule.month - 1, 1).getDay();
           const selectedDay = +el.daySelect.value;
 
-          // 填充月初空白格子
           for (let i = 0; i < firstDayOfWeek; i++) {
-            const emptyCell = document.createElement("div");
-            grid.appendChild(emptyCell);
+            grid.appendChild(document.createElement("div"));
           }
 
-          // 產生每日格子
           for (let d = 1; d <= nDays; d++) {
             const cell = document.createElement("div");
             cell.className = "cal-cell";
             if (d === selectedDay) cell.classList.add("selected");
 
-            // 日期數字
             const dateDiv = document.createElement("div");
             dateDiv.className = "cal-date";
             dateDiv.textContent = d;
 
-            // 班別代碼 (顯示在日期下方)
             const shiftDiv = document.createElement("div");
             shiftDiv.className = "cal-shift";
             const code = person.codes[d] || "";
@@ -346,25 +272,16 @@
 
             cell.appendChild(dateDiv);
             cell.appendChild(shiftDiv);
-
-            // 點擊事件：更新選取日期，並連動上方狀態
             cell.addEventListener("click", () => {
               el.daySelect.value = d;
-              renderStatus(); // 觸發更新
+              renderStatus();
             });
-
             grid.appendChild(cell);
           }
         }
 
-        function renderAll() {
-          renderCodeMapEditor();
-          el.targetName.value = settings.targetName;
-          renderStatus();
-        }
-
         el.targetName.addEventListener("change", () => { 
-          settings.targetName = el.targetName.value.trim() || "倪正人"; 
+          settings.targetName = el.targetName.value.trim(); 
           saveSettings(); 
           renderStatus(); 
         });
@@ -384,7 +301,9 @@
 
         (async () => {
           await loadStorage();
-          renderAll();
+          el.targetName.value = settings.targetName;
+          renderCodeMapEditor();
+          renderStatus();
         })();
       })();
     </script>
