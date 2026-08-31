@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#34363b" />
     <title>班表查詢</title>
+    
+    <!-- 專門控制通訊軟體(LINE/FB)連結預覽的設定 -->
+    <meta name="description" content=" " />
+    <meta property="og:title" content="班表查詢" />
+    <meta property="og:description" content=" " />
+    <meta property="og:type" content="website" />
+
     <style>
       :root {
         color: #f7f7fb;
@@ -128,7 +135,7 @@
           const now = taipeiToday();
           el.todayStamp.textContent = `今日: ${now.month}/${now.day}`;
 
-          const person = schedule.staff[0]; // 直接取用第一筆資料
+          const person = schedule.staff[0]; 
           const nDays = daysInMonth(schedule.year, schedule.month);
           const sameMonth = now.year === schedule.year && now.month === schedule.month;
 
@@ -201,8 +208,6 @@
         }
         
         el.daySelect.addEventListener("change", renderStatus);
-        
-        // 初始載入
         renderStatus();
       })();
     </script>
