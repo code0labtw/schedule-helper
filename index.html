@@ -24,10 +24,9 @@
       .card { border: 1px solid #565a64; border-radius: 16px; background: #3b3e44; padding: 20px; margin-bottom: 16px; }
       
       .status-card { border: 2px solid #6e70df; }
-      .control-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+      .control-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
       .input-group { display: flex; align-items: center; gap: 8px; }
       .input-group label { color: #b5b9c4; font-size: .9rem; font-weight: 700; }
-      .input-group input { width: 6em; font-weight: 800; }
       .today-stamp { color: #bcc0ca; font-size: .85rem; font-weight: 600; font-variant-numeric: tabular-nums; }
       
       .result-row { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #565a64; }
@@ -74,15 +73,10 @@
       <article class="card status-card">
         <div class="control-row">
           <div class="input-group">
-            <label for="targetName">姓名</label>
-            <input type="text" id="targetName" value="倪郡嶸" />
+            <label for="daySelect">日期</label>
+            <select id="daySelect"></select>
           </div>
           <div class="today-stamp" id="todayStamp"></div>
-        </div>
-
-        <div class="input-group">
-          <label for="daySelect">日期</label>
-          <select id="daySelect"></select>
         </div>
         
         <div class="result-row">
@@ -117,7 +111,7 @@
       (() => {
         const $ = id => document.getElementById(id);
         const el = {
-          todayStamp: $("todayStamp"), targetName: $("targetName"), daySelect: $("daySelect"),
+          todayStamp: $("todayStamp"), daySelect: $("daySelect"),
           codePill: $("codePill"), codeMeaning: $("codeMeaning"),
           settingsHead: $("settingsHead"), settingsBody: $("settingsBody"),
           codeMapList: $("codeMapList"), addCodeBtn: $("addCodeBtn"),
@@ -130,7 +124,7 @@
           "休": "休假", "例": "例假", "國": "國定假日", "喪": "喪假"
         };
         
-        let settings = { targetName: "倪郡嶸", codeMap: { ...DEFAULT_CODE_MAP } };
+        let settings = { codeMap: { ...DEFAULT_CODE_MAP } };
         
         let schedule = { 
           year: 2026, month: 9, 
@@ -207,8 +201,7 @@
           const now = taipeiToday();
           el.todayStamp.textContent = `今日: ${now.month}/${now.day}`;
 
-          const name = settings.targetName.trim();
-          const person = schedule.staff.find(s => s.name.includes(name));
+          const person = schedule.staff[0]; // 直接取用第一筆資料
           const nDays = daysInMonth(schedule.year, schedule.month);
           const sameMonth = now.year === schedule.year && now.month === schedule.month;
 
@@ -279,12 +272,6 @@
             grid.appendChild(cell);
           }
         }
-
-        el.targetName.addEventListener("change", () => { 
-          settings.targetName = el.targetName.value.trim(); 
-          saveSettings(); 
-          renderStatus(); 
-        });
         
         el.daySelect.addEventListener("change", renderStatus);
         
@@ -301,7 +288,6 @@
 
         (async () => {
           await loadStorage();
-          el.targetName.value = settings.targetName;
           renderCodeMapEditor();
           renderStatus();
         })();
