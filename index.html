@@ -2,93 +2,255 @@
 <html lang="zh-Hant">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#34363b" />
-    <title>班表查詢</title>
-    
-    <!-- 專門控制通訊軟體(LINE/FB)連結預覽的設定 -->
-    <meta name="description" content=" " />
-    <meta property="og:title" content="班表查詢" />
-    <meta property="og:description" content=" " />
-    <meta property="og:type" content="website" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#14171d" />
+    <title>班表小幫手</title>
+    <meta name="description" content="班表查詢小幫手" />
     <style>
       :root {
-        color: #f7f7fb;
-        background: #34363b;
-        font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+        --bg: #13161c;
+        --surface: #1d212b;
+        --card-bg: #1e222d;
+        --line: #2e3543;
+        --ink: #eef1f5;
+        --muted: #8e9caa;
+        --mine: #262b41;
+        --mine-ink: #b0b4ff;
+        --band: #3a3020;
+        --me-bg: #ffab1f;
+        --me-fg: #2b1a00;
+        --sun: #ff7588;
+        --sat: #8da2fb;
+        --primary: #5c67f2;
+        --primary-hover: #4e57d4;
+        --col-hover: rgba(176, 180, 255, 0.08);
+        --col-selected: rgba(176, 180, 255, 0.15);
+
+        color: var(--ink);
+        background: var(--bg);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
         font-synthesis: none;
+        color-scheme: dark;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
       }
+
       * { box-sizing: border-box; }
-      html, body { min-height: 100%; margin: 0; }
-      body { min-width: 320px; background: #34363b; }
-      button { font: inherit; border: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-      button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #b5b6ff; outline-offset: 2px; }
-      input, select { font: inherit; color: #f7f7fb; background: #2f3136; border: 1px solid #565a64; border-radius: 8px; padding: 6px 10px; }
-
-      .app { width: min(1040px, calc(100% - 28px)); margin: 0 auto; padding: 24px 0 48px; }
-
-      .card { border: 1px solid #565a64; border-radius: 16px; background: #3b3e44; padding: 20px; margin-bottom: 16px; }
-      
-      .status-card { border: 2px solid #6e70df; }
-      .control-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
-      .input-group { display: flex; align-items: center; gap: 8px; }
-      .input-group label { color: #b5b9c4; font-size: .9rem; font-weight: 700; }
-      .today-stamp { color: #bcc0ca; font-size: .85rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-      
-      .result-row { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #565a64; }
-      .code-pill { display: inline-flex; align-items: center; justify-content: center; min-width: 48px; padding: 6px 12px; border-radius: 999px; background: #6e70df; color: #fff; font-weight: 850; font-size: 1.1rem; }
-      .code-pill.empty { background: #4a4e57; color: #c7cad4; }
-      .code-meaning { color: #f7f7fb; font-size: 1.05rem; font-weight: 700; }
-
-      .calendar-card { padding: 20px; background: #2f3136; }
-      .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-      .calendar-header h2 { font-size: 1.15rem; font-weight: 700; margin: 0; color: #e3e5e8; }
-      
-      .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 12px; font-size: 0.85rem; font-weight: 700; color: #9ea2ad; }
-      .calendar-weekdays .blue-text { color: #5865F2; }
-      
-      .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px 0; }
-      .cal-cell { display: flex; flex-direction: column; align-items: center; padding: 8px 0; cursor: pointer; border-radius: 12px; transition: background 0.2s; user-select: none; }
-      .cal-cell:hover { background: #3b3e44; }
-      
-      .cal-date { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 600; border-radius: 50%; color: #dcddde; margin-bottom: 4px; }
-      .cal-cell.selected .cal-date { background: #3b48e0; color: #ffffff; font-weight: 700; }
-      
-      .cal-shift { font-size: 0.8rem; font-weight: 700; color: #8a8cff; min-height: 16px; }
-      .cal-shift.empty { color: transparent; }
-
-      @media (max-width: 640px) {
-        .app { padding: 16px 0; }
-        .card { padding: 16px; }
+      html, body { min-height: 100%; margin: 0; padding: 0; }
+      body { 
+        min-width: 320px; 
+        background: var(--bg); 
+        font-variant-numeric: tabular-nums;
+        -webkit-tap-highlight-color: transparent;
       }
+      p, h1, h2, h3 { margin: 0; }
+      select, button { font: inherit; color: inherit; }
+      select:focus-visible, button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+      button { border: 0; background: transparent; cursor: pointer; padding: 0; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+
+      /* 自適應外框 */
+      .app { 
+        width: 100%; 
+        max-width: 560px; 
+        margin: 0 auto; 
+        padding: max(14px, env(safe-area-inset-top)) 14px max(32px, env(safe-area-inset-bottom)); 
+        display: grid; 
+        gap: 12px; 
+      }
+
+      @media (min-width: 768px) {
+        .app { max-width: 680px; padding: 24px 20px 48px; gap: 16px; }
+      }
+
+      /* ---------- 頁首 ---------- */
+      .header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 2px; }
+      h1 { font-size: clamp(1.2rem, 4vw, 1.45rem); font-weight: 700; line-height: 1.2; display: flex; align-items: center; gap: 6px; }
+      .today-stamp { display: grid; gap: 1px; justify-items: end; color: var(--muted); font-size: .75rem; }
+      .today-stamp strong { color: var(--ink); font-size: .88rem; font-weight: 600; }
+
+      /* ---------- 選擇月份 / 人員 / 檢視切換 ---------- */
+      .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+      .select { position: relative; flex: 1 1 120px; min-width: 110px; }
+      .select::after {
+        content: ""; position: absolute; right: 12px; top: 50%; width: 5px; height: 5px;
+        border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+        transform: translateY(-70%) rotate(45deg); pointer-events: none;
+      }
+      .select select {
+        width: 100%; appearance: none; -webkit-appearance: none; cursor: pointer;
+        padding: 9px 28px 9px 12px; border-radius: 12px; border: 1px solid var(--line);
+        background: var(--surface); font-weight: 600; font-size: .88rem; color: var(--ink);
+      }
+
+      .tab-group { display: flex; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 3px; gap: 2px; margin-left: auto; }
+      .tab-btn { padding: 6px 12px; border-radius: 9px; font-size: .8rem; font-weight: 600; color: var(--muted); transition: all .15s; white-space: nowrap; }
+      .tab-btn.active { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(92,103,242,0.4); }
+
+      /* ---------- 日期橫向捲動列 ---------- */
+      .date-strip { 
+        display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 6px; 
+        scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none; 
+        -webkit-overflow-scrolling: touch;
+      }
+      .date-strip::-webkit-scrollbar { display: none; }
+      
+      .date-btn {
+        flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        width: clamp(46px, 12vw, 54px); height: clamp(52px, 14vw, 60px); border-radius: 12px; border: 1px solid var(--line);
+        background: var(--surface); transition: all 0.15s ease;
+      }
+      .date-btn .d { font-size: clamp(1rem, 3.5vw, 1.15rem); font-weight: 700; }
+      .date-btn .w { font-size: .7rem; color: var(--muted); margin-top: 1px; }
+      .date-btn.sun .d, .date-btn.sun .w { color: var(--sun); }
+      .date-btn.sat .d, .date-btn.sat .w { color: var(--sat); }
+      .date-btn.is-today { border: 2px solid var(--primary); }
+      .date-btn.is-selected { background: var(--primary); border-color: var(--primary); color: #fff; transform: scale(1.04); }
+      .date-btn.is-selected .w, .date-btn.is-selected.sun .d, .date-btn.is-selected.sun .w, .date-btn.is-selected.sat .d, .date-btn.is-selected.sat .w { color: #fff; opacity: .95; }
+
+      /* ---------- 當日班別 Hero 卡片 (完美適應手機) ---------- */
+      .hero { 
+        display: flex; align-items: center; background: var(--surface); border: 1px solid var(--line); 
+        border-radius: 16px; padding: clamp(12px, 3.5vw, 18px); gap: clamp(12px, 3.5vw, 18px); 
+        box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      }
+      .hero-code { 
+        flex: none; min-width: clamp(60px, 16vw, 76px); padding: clamp(10px, 2.5vw, 14px) clamp(10px, 3vw, 16px); 
+        text-align: center; border-radius: 14px; font-size: clamp(1.5rem, 5vw, 1.85rem); font-weight: 800; 
+        background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(92, 103, 242, 0.35);
+      }
+      .hero-code.is-off { background: #5b21b6; color: #ede9fe; box-shadow: 0 4px 12px rgba(91, 33, 182, 0.35); }
+      .hero-code.is-leave { background: #854d0e; color: #fef08a; box-shadow: 0 4px 12px rgba(133, 77, 14, 0.35); }
+
+      .hero-text { display: grid; gap: 2px; min-width: 0; }
+      .hero-date { color: var(--muted); font-size: clamp(.75rem, 2.5vw, .85rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .hero-meaning { font-size: clamp(1.15rem, 4vw, 1.4rem); font-weight: 700; color: #fff; }
+      .notice { color: var(--muted); font-size: .8rem; line-height: 1.4; padding: 0 2px; }
+
+      /* ---------- 月曆網格視圖 (7天日曆 手機滿版自適應) ---------- */
+      .calendar-card {
+        background: var(--surface); border: 1px solid var(--line); border-radius: 16px; 
+        padding: clamp(12px, 3vw, 18px); box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      }
+      .cal-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: 700; font-size: clamp(.78rem, 2.5vw, .9rem); margin-bottom: 8px; }
+      .cal-header div { padding: 4px 0; color: #a5b4fc; }
+      .cal-header div.sun { color: var(--sun); }
+      .cal-header div.sat { color: var(--sat); }
+
+      .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: clamp(3px, 1.2vw, 6px); text-align: center; }
+      .cal-cell {
+        aspect-ratio: 1 / 1.05; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        border-radius: clamp(8px, 2vw, 12px); border: 1px solid transparent; background: rgba(255,255,255,0.02);
+        cursor: pointer; transition: all .15s; padding: 2px 1px; min-height: 44px;
+      }
+      .cal-cell:hover { background: rgba(255,255,255,0.06); }
+      .cal-cell.empty { background: transparent; cursor: default; }
+      .cal-cell .c-d { 
+        width: clamp(22px, 6vw, 28px); height: clamp(22px, 6vw, 28px); 
+        display: flex; align-items: center; justify-content: center; border-radius: 50%; 
+        font-size: clamp(.82rem, 2.8vw, .95rem); font-weight: 700; 
+      }
+      .cal-cell .c-code { font-size: clamp(.72rem, 2.4vw, .82rem); font-weight: 600; margin-top: 1px; color: #cbd5e1; }
+      .cal-cell.is-sun .c-d { color: var(--sun); }
+      .cal-cell.is-today .c-d { border: 2px solid var(--primary); color: #a5b4fc; }
+      .cal-cell.is-selected { border-color: var(--primary); background: rgba(92, 103, 242, 0.15); transform: scale(1.05); }
+      .cal-cell.is-selected .c-d { background: var(--primary); color: #fff; }
+      .cal-cell.is-selected .c-code { color: #fff; font-weight: 700; }
+      .cal-cell .c-code.c-off { color: #c4b5fd; }
+      .cal-cell .c-code.c-leave { color: #fde047; }
+
+      /* ---------- 班表表格 (Table View 手機橫向滾動) ---------- */
+      .table-card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+      .table-title { padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); gap: 6px; }
+      .table-title h2 { font-size: clamp(.9rem, 3vw, 1.05rem); font-weight: 700; }
+      .table-hint { font-size: .72rem; color: var(--muted); }
+      .table-flex { display: flex; max-width: 100%; }
+      .name-col { flex: none; border-right: 2px solid var(--line); }
+      .table-scroll { flex: 1 1 auto; min-width: 0; overflow-x: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+      table { border-collapse: collapse; white-space: nowrap; width: 100%; }
+      th, td { border: 1px solid var(--line); }
+      thead th { border-top: 0; }
+      table tr > *:first-child { border-left: 0; }
+      table tr:last-child > * { border-bottom: 0; }
+      .table-scroll table tr > *:last-child { border-right: 0; }
+      .name-col table tr > * { border-right: 0; }
+
+      thead th { height: 48px; min-width: 42px; padding: 0 3px; font-weight: 600; text-align: center; transition: background 0.15s; }
+      .name-col thead th { padding: 0 12px; text-align: left; color: var(--muted); font-size: .82rem; font-weight: 600; }
+      .hd { display: grid; gap: 1px; pointer-events: none; }
+      .hd .d { font-size: .9rem; font-weight: 700; }
+      .hd .w { font-size: .68rem; font-weight: 400; color: var(--muted); }
+      thead th.sun .w, thead th.sun .d { color: var(--sun); }
+      thead th.today-col { background: rgba(92, 103, 242, 0.25); }
+
+      tbody th, tbody td { height: 42px; }
+      tbody th { padding: 0 12px; text-align: left; font-size: .88rem; font-weight: 600; }
+      tbody td { min-width: 42px; padding: 0 3px; text-align: center; font-size: .88rem; transition: background 0.15s; }
+      tbody td.today-col { background: var(--band); }
+      tbody tr.mine th, tbody tr.mine td { background: var(--mine); }
+      tbody tr.mine th { color: var(--mine-ink); font-weight: 700; }
+      tbody tr.mine td { font-weight: 600; }
+
+      thead th.clickable, tbody td.clickable { cursor: pointer; }
+      thead th.clickable:hover, tbody td.clickable:hover { background: var(--col-hover); }
+      thead th.selected-col { background: var(--primary); border-color: var(--primary); }
+      thead th.selected-col .w, thead th.selected-col .d { color: #fff; }
+      tbody td.selected-col { background: var(--col-selected); }
+      tbody tr.mine td.selected-col, tbody tr.mine td.today-me { background: var(--me-bg); color: var(--me-fg); font-weight: 800; }
     </style>
   </head>
   <body>
     <main class="app">
-      <article class="card status-card">
-        <div class="control-row">
-          <div class="input-group">
-            <label for="daySelect">日期</label>
-            <select id="daySelect"></select>
-          </div>
-          <div class="today-stamp" id="todayStamp"></div>
+      <header class="header">
+        <h1><span>📅</span> 班表小幫手</h1>
+        <div class="today-stamp"><span>今天</span><strong id="todayStamp"></strong></div>
+      </header>
+
+      <div class="controls">
+        <label class="select"><select id="monthSelect" aria-label="月份"></select></label>
+        <label class="select" id="staffSelectContainer"><select id="staffSelect" aria-label="人員"></select></label>
+        <div class="tab-group">
+          <button class="tab-btn active" id="btnCalView">月曆視圖</button>
+          <button class="tab-btn" id="btnTableView">表格視圖</button>
         </div>
-        
-        <div class="result-row">
-          <span class="code-pill" id="codePill">--</span>
-          <span class="code-meaning" id="codeMeaning">無資料</span>
+      </div>
+
+      <!-- 橫向快速日期列 -->
+      <div class="date-strip" id="dateStrip"></div>
+      
+      <!-- 當日班別 Hero 卡片 -->
+      <article class="hero">
+        <div class="hero-code" id="codePill">--</div>
+        <div class="hero-text">
+          <div class="hero-date" id="heroDate">--</div>
+          <div class="hero-meaning" id="codeMeaning">--</div>
         </div>
       </article>
+      <p class="notice" id="monthMismatch" style="display:none"></p>
 
-      <article class="card calendar-card" id="calendarCard">
-        <div class="calendar-header">
-          <h2 id="calendarTitle"></h2>
+      <!-- 月曆網格視圖 -->
+      <section class="calendar-card" id="calendarCard">
+        <div class="cal-header">
+          <div class="sun">日</div>
+          <div>一</div>
+          <div>二</div>
+          <div>三</div>
+          <div>四</div>
+          <div>五</div>
+          <div class="sat">六</div>
         </div>
-        <div class="calendar-weekdays">
-          <span class="blue-text">日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="blue-text">六</span>
+        <div class="cal-grid" id="calendarGrid"></div>
+      </section>
+
+      <!-- 表格視圖 -->
+      <article class="table-card" id="tableCard" style="display:none">
+        <div class="table-title">
+          <h2 id="tableTitle"></h2>
+          <span class="table-hint">💡 點擊格子可快速切換選取該日</span>
         </div>
-        <div class="calendar-grid" id="calendarGrid"></div>
+        <div class="table-flex">
+          <div class="name-col"><table id="nameTable"></table></div>
+          <div class="table-scroll"><table id="scheduleTable"></table></div>
+        </div>
       </article>
     </main>
 
@@ -96,118 +258,384 @@
       (() => {
         const $ = id => document.getElementById(id);
         const el = {
-          todayStamp: $("todayStamp"), daySelect: $("daySelect"),
-          codePill: $("codePill"), codeMeaning: $("codeMeaning"),
-          calendarCard: $("calendarCard"), calendarTitle: $("calendarTitle"), calendarGrid: $("calendarGrid"),
+          todayStamp: $("todayStamp"), monthSelect: $("monthSelect"), staffSelect: $("staffSelect"),
+          staffSelectContainer: $("staffSelectContainer"), dateStrip: $("dateStrip"),
+          codePill: $("codePill"), heroDate: $("heroDate"), codeMeaning: $("codeMeaning"), monthMismatch: $("monthMismatch"),
+          tableTitle: $("tableTitle"), nameTable: $("nameTable"), scheduleTable: $("scheduleTable"),
+          calendarCard: $("calendarCard"), calendarGrid: $("calendarGrid"), tableCard: $("tableCard"),
+          btnCalView: $("btnCalView"), btnTableView: $("btnTableView"),
         };
 
-        const CODE_MAP = { 
-          A1: "05:00 上班", A3: "06:30 上班", A4: "07:00 上班", 
-          C2: "14:30 上班", C3: "14:30 上班", C6: "15:00 上班",
-          "休": "休假", "例": "例假", "國": "國定假日", "喪": "喪假"
+        const DEFAULT_CODE_MAP = {
+          A1: "05:00 上班", A3: "06:30 上班", A4: "07:00 上班", A6: "08:30 上班",
+          A8: "09:30 上班", A9: "10:00 上班", C2: "14:30 上班", C3: "14:30 上班",
+          C4: "14:30 上班", C6: "15:00 上班", N: "夜班",
+          休: "休息日", 例: "例假日", 國: "國定假日", 年: "年假 (特別休假)", 喪: "喪假",
         };
-        
-        let schedule = { 
-          year: 2026, month: 9, 
-          staff: [
-            {
-              name: "倪郡嶸",
-              codes: {
-                1: "A1", 2: "休", 3: "C3", 4: "C2", 5: "例",
-                6: "C2", 7: "休", 8: "A1", 9: "A1", 10: "A1",
-                11: "喪", 12: "喪", 13: "例", 14: "A1", 15: "C3",
-                16: "休", 17: "C2", 18: "C3", 19: "C3", 20: "例",
-                21: "A3", 22: "C2", 23: "休", 24: "例", 25: "國",
-                26: "C3", 27: "C2", 28: "C3", 29: "休", 30: "A3"
-              }
-            }
-          ] 
+
+        const PRESETS = {
+          // 9月份：已刪除倪正人以外其他人的班表，僅保留倪正人
+          "2026-9": {
+            year: 2026, month: 9,
+            staff: [
+              { name: "倪正人", codes: "A1,休,C3,C2,例,C2,休,A1,A1,A1,喪,喪,例,A1,C3,休,C2,C3,C3,例,A3,C2,休,例,國,C3,C2,C3,休,A3".split(",") },
+            ],
+          },
+          // 10月份：保留所有人班表
+          "2026-10": {
+            year: 2026, month: 10,
+            staff: [
+              { name: "賴書慶", codes: "A9,年,例,年,年,年,休,例,A6,C2,國,國,A1,A3,A3,例,休,A1,A3,休,C2,C2,C2,例,A1,A3,休,C2,C2,C3,例".split(",") },
+              { name: "黎文祺", codes: "C2,例,A3,A1,休,C2,C6,例,C3,C3,國,休,C2,C3,國,例,A1,C3,C2,C2,國,例,A1,A1,休,例,A1,A1,C3,休,C3".split(",") },
+              { name: "劉黃坤佑", codes: "國,C2,C2,例,C3,C3,休,A3,A3,例,A1,國,休,A1,A1,A1,例,年,A1,A1,休,C3,例,C2,C2,休,C3,C3,國,C2,例".split(",") },
+              { name: "倪正人", codes: "A1,A1,例,C3,年,國,C2,C3,休,A1,例,A1,休,C2,國,C2,C2,例,年,C3,C6,休,年,C3,例,A1,休,國,A1,例,C2".split(",") },
+              { name: "謝友智", codes: "休,C3,C3,例,A1,A1,休,C2,C2,例,C3,C2,國,休,C2,N,例,C2,C3,休,A3,A1,年,例,C3,C3,休,例,國,A1,A1".split(",") },
+              { name: "張啟東", codes: "C3,例,A1,C2,C2,休,A1,A1,A1,例,C2,C3,C3,休,C3,C3,C3,例,國,A3,A1,休,C3,例,國,C2,C2,休,例,A3,A3".split(",") },
+              { name: "張寶儀", codes: "A3,A3,例,A3,A3,A3,A3,休,例,A3,A3,A3,A3,例,A3,A3,A3,休,例,國,國,A3,A3,A3,A3,休,A3,A3,A3,例,國".split(",") },
+            ],
+          },
         };
+
+        const settings = { targetName: "倪正人", codeMap: DEFAULT_CODE_MAP };
+        let schedules = {};
+        let currentKey = null;
+        let currentDay = null; 
+        let activeView = "calendar"; // 'calendar' | 'table'
 
         const taipeiToday = () => {
           const p = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
           const v = t => Number(p.find(i => i.type === t).value);
           return { year: v("year"), month: v("month"), day: v("day") };
         };
+        const weekdayChar = (y, m, d) => ["日", "一", "二", "三", "四", "五", "六"][new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
         const daysInMonth = (year, month) => new Date(year, month, 0).getDate();
+        const keyOf = (y, m) => `${y}-${m}`;
+
+        function presetToSchedule(preset) {
+          return {
+            year: preset.year, month: preset.month,
+            staff: preset.staff.map(s => {
+              const codes = {};
+              s.codes.forEach((c, idx) => { codes[idx + 1] = c; });
+              return { name: s.name, codes };
+            }),
+          };
+        }
+        function buildDefaultSchedules() {
+          const out = {};
+          Object.entries(PRESETS).forEach(([k, preset]) => { out[k] = presetToSchedule(preset); });
+          return out;
+        }
+
+        function sortedKeys() {
+          return Object.keys(schedules).sort((a, b) => {
+            const [ay, am] = a.split("-").map(Number);
+            const [by, bm] = b.split("-").map(Number);
+            return ay * 100 + am - (by * 100 + bm);
+          });
+        }
+        function pickDefaultKey() {
+          const now = taipeiToday();
+          const nowVal = now.year * 100 + now.month;
+          const keys = sortedKeys();
+          if (schedules[keyOf(now.year, now.month)]) return keyOf(now.year, now.month);
+          const upcoming = keys.find(k => { const [y, m] = k.split("-").map(Number); return y * 100 + m >= nowVal; });
+          return upcoming || keys[keys.length - 1] || keys[0];
+        }
+
+        function renderMonthSelect() {
+          el.monthSelect.replaceChildren();
+          sortedKeys().forEach(k => {
+            const s = schedules[k];
+            const opt = document.createElement("option");
+            opt.value = k; 
+            opt.textContent = `${s.year} 年 ${s.month} 月`;
+            if (k === currentKey) opt.selected = true;
+            el.monthSelect.appendChild(opt);
+          });
+        }
+
+        function renderStaffSelect() {
+          const sch = currentSchedule();
+          if (!sch) return;
+          el.staffSelect.replaceChildren();
+          sch.staff.forEach(s => {
+            const opt = document.createElement("option");
+            opt.value = s.name;
+            opt.textContent = s.name;
+            if (s.name === settings.targetName) opt.selected = true;
+            el.staffSelect.appendChild(opt);
+          });
+          // 如果該月份只有 1 人，隱藏人員選單保持清爽
+          el.staffSelectContainer.style.display = sch.staff.length > 1 ? "block" : "none";
+        }
+
+        function currentSchedule() { return schedules[currentKey]; }
+        function findTarget() {
+          const sch = currentSchedule();
+          if (!sch) return null;
+          return sch.staff.find(s => s.name === settings.targetName) || sch.staff[0] || null;
+        }
+
+        function selectDay(d) {
+          currentDay = d;
+          renderStatus();
+        }
 
         function renderStatus() {
           const now = taipeiToday();
-          el.todayStamp.textContent = `今日: ${now.month}/${now.day}`;
+          el.todayStamp.textContent = `${now.year}/${now.month}/${now.day}（${weekdayChar(now.year, now.month, now.day)}）`;
 
-          const person = schedule.staff[0]; 
-          const nDays = daysInMonth(schedule.year, schedule.month);
-          const sameMonth = now.year === schedule.year && now.month === schedule.month;
+          const sch = currentSchedule();
+          const person = findTarget();
+          const nDays = daysInMonth(sch.year, sch.month);
+          const sameMonth = now.year === sch.year && now.month === sch.month;
 
-          if (el.daySelect.children.length === 0) {
-              const prevSelected = sameMonth ? now.day : 1;
-              for (let d = 1; d <= nDays; d++) {
-                const opt = document.createElement("option");
-                opt.value = d; opt.textContent = `${schedule.month}/${d}`;
-                if (d === prevSelected) opt.selected = true;
-                el.daySelect.appendChild(opt);
-              }
+          if (!currentDay || currentDay > nDays) {
+            currentDay = sameMonth ? now.day : 1;
           }
-          const selectedDay = +el.daySelect.value;
+
+          // 繪製橫向日期列
+          el.dateStrip.replaceChildren();
+          let selectedBtn = null;
+          for (let d = 1; d <= nDays; d++) {
+            const wd = weekdayChar(sch.year, sch.month, d);
+            const btn = document.createElement("button");
+            btn.className = "date-btn";
+            if (wd === "日") btn.classList.add("sun");
+            if (wd === "六") btn.classList.add("sat");
+            if (d === currentDay) {
+              btn.classList.add("is-selected");
+              selectedBtn = btn;
+            }
+            if (sameMonth && d === now.day) btn.classList.add("is-today");
+
+            const dSpan = document.createElement("span"); dSpan.className = "d"; dSpan.textContent = d;
+            const wSpan = document.createElement("span"); wSpan.className = "w"; wSpan.textContent = wd;
+            btn.append(dSpan, wSpan);
+
+            btn.addEventListener("click", () => selectDay(d));
+            el.dateStrip.appendChild(btn);
+          }
+
+          // 日期列置中
+          requestAnimationFrame(() => {
+            if (selectedBtn) {
+              const strip = el.dateStrip;
+              const c = strip.getBoundingClientRect();
+              const b = selectedBtn.getBoundingClientRect();
+              strip.scrollLeft += (b.left - c.left) - (c.width / 2 - b.width / 2);
+            }
+          });
+
+          el.monthMismatch.style.display = sameMonth ? "none" : "block";
+          if (!sameMonth) el.monthMismatch.textContent = `目前顯示的是 ${sch.month} 月的班表，不是今天所在的月份。`;
+
+          const isToday = sameMonth && currentDay === now.day;
+          const targetDisplayName = person ? person.name : settings.targetName;
+          el.heroDate.textContent = `${isToday ? "今天　" : ""}${sch.month} 月 ${currentDay} 日　週${weekdayChar(sch.year, sch.month, currentDay)} (${targetDisplayName})`;
 
           if (!person) {
             el.codePill.textContent = "--";
-            el.codePill.className = "code-pill empty";
-            el.codeMeaning.textContent = "查無資料";
+            el.codeMeaning.textContent = `找不到「${settings.targetName}」的班表資料`;
             renderCalendar(null);
+            renderTable(null);
             return;
           }
 
-          const code = person.codes[selectedDay] || "";
+          const code = person.codes[currentDay] || "";
           el.codePill.textContent = code || "--";
-          el.codePill.className = "code-pill" + (code ? "" : " empty");
-          el.codeMeaning.textContent = code ? (CODE_MAP[code] || "未設定") : "無班別";
+          el.codePill.className = "hero-code";
+          if (["休", "例", "國"].includes(code)) el.codePill.classList.add("is-off");
+          if (["年", "喪"].includes(code)) el.codePill.classList.add("is-leave");
+
+          el.codeMeaning.textContent = code ? (settings.codeMap[code] || "未設定上班時間") : "尚無資料";
 
           renderCalendar(person);
+          renderTable(person.name);
         }
 
+        // 渲染日曆網格 (7天視圖)
         function renderCalendar(person) {
-          if (!person) { el.calendarCard.style.display = "none"; return; }
-          el.calendarCard.style.display = "block";
-          el.calendarTitle.textContent = `${schedule.year}年${schedule.month}月`;
+          const sch = currentSchedule();
+          el.calendarGrid.replaceChildren();
+          if (!person) return;
 
-          const grid = el.calendarGrid;
-          grid.replaceChildren();
+          const nDays = daysInMonth(sch.year, sch.month);
+          const firstDayWd = new Date(Date.UTC(sch.year, sch.month - 1, 1)).getUTCDay(); // 0 is Sun
+          const now = taipeiToday();
+          const sameMonth = now.year === sch.year && now.month === sch.month;
 
-          const nDays = daysInMonth(schedule.year, schedule.month);
-          const firstDayOfWeek = new Date(schedule.year, schedule.month - 1, 1).getDay();
-          const selectedDay = +el.daySelect.value;
-
-          for (let i = 0; i < firstDayOfWeek; i++) {
-            grid.appendChild(document.createElement("div"));
+          // 前置空白格子
+          for (let i = 0; i < firstDayWd; i++) {
+            const emptyCell = document.createElement("div");
+            emptyCell.className = "cal-cell empty";
+            el.calendarGrid.appendChild(emptyCell);
           }
 
+          // 1 ~ nDays
           for (let d = 1; d <= nDays; d++) {
-            const cell = document.createElement("div");
-            cell.className = "cal-cell";
-            if (d === selectedDay) cell.classList.add("selected");
-
-            const dateDiv = document.createElement("div");
-            dateDiv.className = "cal-date";
-            dateDiv.textContent = d;
-
-            const shiftDiv = document.createElement("div");
-            shiftDiv.className = "cal-shift";
+            const wd = (firstDayWd + d - 1) % 7;
             const code = person.codes[d] || "";
-            shiftDiv.textContent = code || "-";
-            if (!code) shiftDiv.classList.add("empty");
+            const isOff = ["休", "例", "國"].includes(code);
+            const isLeave = ["年", "喪"].includes(code);
 
-            cell.appendChild(dateDiv);
-            cell.appendChild(shiftDiv);
-            cell.addEventListener("click", () => {
-              el.daySelect.value = d;
+            const cell = document.createElement("button");
+            cell.className = "cal-cell";
+            if (wd === 0) cell.classList.add("is-sun");
+            if (d === currentDay) cell.classList.add("is-selected");
+            if (sameMonth && d === now.day) cell.classList.add("is-today");
+
+            const dDiv = document.createElement("div");
+            dDiv.className = "c-d";
+            dDiv.textContent = d;
+
+            const cDiv = document.createElement("div");
+            cDiv.className = "c-code";
+            if (isOff) cDiv.classList.add("c-off");
+            if (isLeave) cDiv.classList.add("c-leave");
+            cDiv.textContent = code || "-";
+
+            cell.append(dDiv, cDiv);
+            cell.addEventListener("click", () => selectDay(d));
+            el.calendarGrid.appendChild(cell);
+          }
+        }
+
+        // 渲染表格視圖
+        function renderTable(highlightName) {
+          const sch = currentSchedule();
+          el.tableTitle.textContent = `${sch.year} 年 ${sch.month} 月 全員班表`;
+          const nDays = daysInMonth(sch.year, sch.month);
+          const now = taipeiToday();
+          const sameMonth = now.year === sch.year && now.month === sch.month;
+
+          const nameTable = el.nameTable, dataTable = el.scheduleTable;
+          nameTable.replaceChildren();
+          dataTable.replaceChildren();
+
+          const nameThead = document.createElement("thead");
+          const nameHeadRow = document.createElement("tr");
+          const corner = document.createElement("th");
+          corner.textContent = "姓名";
+          nameHeadRow.appendChild(corner);
+          nameThead.appendChild(nameHeadRow);
+          nameTable.appendChild(nameThead);
+
+          const dataThead = document.createElement("thead");
+          const dataHeadRow = document.createElement("tr");
+          let selectedTh = null;
+          
+          for (let d = 1; d <= nDays; d++) {
+            const th = document.createElement("th");
+            th.className = "clickable";
+            const wd = weekdayChar(sch.year, sch.month, d);
+            const hd = document.createElement("div");
+            hd.className = "hd";
+            const dd = document.createElement("span"); dd.className = "d"; dd.textContent = d;
+            const ww = document.createElement("span"); ww.className = "w"; ww.textContent = wd;
+            hd.append(dd, ww);
+            th.appendChild(hd);
+            
+            if (wd === "日") th.classList.add("sun");
+            if (sameMonth && d === now.day) th.classList.add("today-col");
+            if (d === currentDay) {
+              th.classList.add("selected-col");
+              selectedTh = th;
+            }
+            
+            th.addEventListener("click", () => selectDay(d));
+            dataHeadRow.appendChild(th);
+          }
+          dataThead.appendChild(dataHeadRow);
+          dataTable.appendChild(dataThead);
+
+          const nameTbody = document.createElement("tbody");
+          const dataTbody = document.createElement("tbody");
+          
+          sch.staff.forEach(person => {
+            const isHl = person.name === highlightName;
+
+            const nameTr = document.createElement("tr");
+            if (isHl) nameTr.classList.add("mine");
+            const th = document.createElement("th");
+            th.textContent = person.name;
+            th.style.cursor = "pointer";
+            th.addEventListener("click", () => {
+              settings.targetName = person.name;
+              renderStaffSelect();
               renderStatus();
             });
-            grid.appendChild(cell);
+            nameTr.appendChild(th);
+            nameTbody.appendChild(nameTr);
+
+            const dataTr = document.createElement("tr");
+            if (isHl) dataTr.classList.add("mine");
+            for (let d = 1; d <= nDays; d++) {
+              const code = person.codes[d] || "";
+              const td = document.createElement("td");
+              td.className = "clickable";
+              td.textContent = code;
+              
+              if (sameMonth && d === now.day) td.classList.add(isHl ? "today-me" : "today-col");
+              if (d === currentDay) td.classList.add("selected-col");
+
+              td.addEventListener("click", () => {
+                settings.targetName = person.name;
+                renderStaffSelect();
+                selectDay(d);
+              });
+              dataTr.appendChild(td);
+            }
+            dataTbody.appendChild(dataTr);
+          });
+          nameTable.appendChild(nameTbody);
+          dataTable.appendChild(dataTbody);
+
+          const scroller = dataTable.parentElement;
+          const scrollToSelected = () => {
+            if (!selectedTh) { scroller.scrollLeft = 0; return; }
+            const c = scroller.getBoundingClientRect();
+            const t = selectedTh.getBoundingClientRect();
+            scroller.scrollLeft += (t.left - c.left) - (c.width / 2 - t.width / 2);
+          };
+          requestAnimationFrame(scrollToSelected);
+        }
+
+        function switchView(view) {
+          activeView = view;
+          if (view === "calendar") {
+            el.calendarCard.style.display = "block";
+            el.tableCard.style.display = "none";
+            el.btnCalView.classList.add("active");
+            el.btnTableView.classList.remove("active");
+          } else {
+            el.calendarCard.style.display = "none";
+            el.tableCard.style.display = "block";
+            el.btnCalView.classList.remove("active");
+            el.btnTableView.classList.add("active");
           }
         }
-        
-        el.daySelect.addEventListener("change", renderStatus);
+
+        el.btnCalView.addEventListener("click", () => switchView("calendar"));
+        el.btnTableView.addEventListener("click", () => switchView("table"));
+
+        el.monthSelect.addEventListener("change", () => { 
+          currentKey = el.monthSelect.value; 
+          currentDay = null;
+          renderStaffSelect();
+          renderStatus(); 
+        });
+
+        el.staffSelect.addEventListener("change", () => {
+          settings.targetName = el.staffSelect.value;
+          renderStatus();
+        });
+
+        schedules = buildDefaultSchedules();
+        currentKey = pickDefaultKey();
+        renderMonthSelect();
+        renderStaffSelect();
         renderStatus();
       })();
     </script>
