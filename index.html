@@ -141,16 +141,17 @@
         padding: clamp(12px, 3vw, 18px); box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         width: 100%; box-sizing: border-box; min-width: 0;
       }
-      .cal-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: 700; font-size: clamp(.78rem, 2.5vw, .9rem); margin-bottom: 8px; }
+      .cal-header { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); text-align: center; font-weight: 700; font-size: clamp(.78rem, 2.5vw, .9rem); margin-bottom: 8px; }
       .cal-header div { padding: 4px 0; color: #a5b4fc; }
       .cal-header div.sun { color: var(--sun); }
       .cal-header div.sat { color: var(--sat); }
 
-      .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: clamp(3px, 1.2vw, 6px); text-align: center; }
+      .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: clamp(3px, 1.2vw, 6px); text-align: center; }
       .cal-cell {
         aspect-ratio: 1 / 1.05; display: flex; flex-direction: column; align-items: center; justify-content: center;
         border-radius: clamp(8px, 2vw, 12px); border: 1px solid transparent; background: rgba(255,255,255,0.02);
-        cursor: pointer; transition: all .15s; padding: 2px 1px; min-height: 44px;
+        cursor: pointer; transition: background .15s, border-color .15s; padding: 2px 1px; min-height: 44px;
+        width: 100%; min-width: 0; margin: 0; box-sizing: border-box; color: inherit;
       }
       .cal-cell:hover { background: rgba(255,255,255,0.06); }
       .cal-cell.empty { background: transparent; cursor: default; }
@@ -162,7 +163,7 @@
       .cal-cell .c-code { font-size: clamp(.72rem, 2.4vw, .82rem); font-weight: 600; margin-top: 1px; color: #cbd5e1; }
       .cal-cell.is-sun .c-d { color: var(--sun); }
       .cal-cell.is-today .c-d { border: 2px solid var(--primary); color: #a5b4fc; }
-      .cal-cell.is-selected { border-color: var(--primary); background: rgba(92, 103, 242, 0.15); transform: scale(1.05); }
+      .cal-cell.is-selected { border-color: var(--primary); background: rgba(92, 103, 242, 0.15); }
       .cal-cell.is-selected .c-d { background: var(--primary); color: #fff; }
       .cal-cell.is-selected .c-code { color: #fff; font-weight: 700; }
       .cal-cell .c-code.c-off { color: #c4b5fd; }
@@ -215,7 +216,7 @@
       tbody td.selected-col { background: var(--col-selected); }
       tbody tr.mine td.selected-col, tbody tr.mine td.today-me { background: var(--me-bg); color: var(--me-fg); font-weight: 800; }
     </style>
-  <script type="text/javascript" nonce="dad60b32991f48d0ada65286034" src="//local.adguard.org?ts=1789922164743&amp;type=content-script&amp;dmn=cdn.discordapp.com&amp;url=https%3A%2F%2Fcdn.discordapp.com%2Fattachments%2F1109458586905620490%2F1551602822070403123%2Findex.html%3Fex%3D6ab2923c%26is%3D6ab140bc%26hm%3D12a5f4cebd1897a62e2df6cc84d201d6157b2b6f85dbd0cf26c07212a1a190da%26&amp;app=com.android.chrome&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=0"></script></head>
+  </head>
   <body>
     <main class="app">
       <header class="header">
@@ -294,13 +295,6 @@
         };
 
         const PRESETS = {
-          // 9月份：已刪除倪正人以外其他人的班表，僅保留倪正人
-          "2026-9": {
-            year: 2026, month: 9,
-            staff: [
-              { name: "倪正人", codes: "A1,休,C3,C2,例,C2,休,A1,A1,A1,喪,喪,例,A1,C3,休,C2,C3,C3,例,A3,C2,休,例,國,C3,C2,C3,休,A3".split(",") },
-            ],
-          },
           // 10月份：保留所有人班表
           "2026-10": {
             year: 2026, month: 10,
